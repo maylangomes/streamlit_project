@@ -16,6 +16,7 @@ if fl is not None:
     st.write(filename)
     df = pd.read_csv(filename)
 else:
+    # os.chdir(r"/home/maylan/python/streamlit_deploy")
     df = pd.read_csv("Superstore.csv")
 
 col1, col2 = st.columns((2))
@@ -31,3 +32,6 @@ with col2:
     date2 = pd.to_datetime(st.date_input("End Date", endDate))
 
 df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
+
+st.sidebar.header("Choose your filter: ")
+region = st.sidebar.multiselect("Pick your region", df["Region"].unique())
