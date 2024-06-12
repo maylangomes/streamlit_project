@@ -35,3 +35,14 @@ df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
 
 st.sidebar.header("Choose your filter: ")
 region = st.sidebar.multiselect("Pick your region", df["Region"].unique())
+
+if not region:
+    df2 = df.copy()
+else:
+    df2 = df[df["Region"].isin(region)]
+
+state = st.sidebar.multiselect("Pick the State", df2["State"].unique())
+if not state:
+    df3 = df2.copy()
+else:
+    df3 = df2[df2["State"].isin(state)]
