@@ -95,9 +95,9 @@ with cl2:
         st.download_button("Download Data", data = csv, file_name = "Region.csv", mime = "text/csv",
                             help = "Click here to download the data as a CSV file")
         
-# filtered_df["month_year"] = filtered_df["Order Date"].dt.to_period("M")
-# st.subheader("Time Series Analysis")
+filtered_df["month_year"] = filtered_df["Order Date"].dt.to_period("M")
+st.subheader("Time Series Analysis")
 
-# linechart = pd.DataFrame(filtered_df.groupby(filtered_df["month_year"].dt.strftime("%Y : %b"))["Sales"].sum()).reset_index()
-# fig2 = px.line(linechart, x="month_year", y="Sales", labels = {"Sales": "Amount"}, height=500, width=1000, template="gridon")
-# st.plotly_chart(fig2, use_container_width=True)
+linechart = pd.DataFrame(filtered_df.groupby(filtered_df["month_year"].dt.strftime("%Y : %b"))["Sales"].sum()).reset_index()
+fig2 = px.line(linechart, x="month_year", y="Sales", labels = {"Sales": "Amount"}, height=500, width=1000, template="gridon")
+st.plotly_chart(fig2, use_container_width=True)
