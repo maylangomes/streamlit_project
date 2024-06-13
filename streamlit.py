@@ -120,3 +120,17 @@ with chart1:
     fig = px.pie(filtered_df, values = "Sales", names = "Segment", template = "plotly_dark")
     fig.update_traces(text = filtered_df["Segment"], textposition = "inside")
     st.plotly_chart(fig, use_container_width = True)
+
+with chart2:
+    st.subheader("Category wise Sales")
+    fig = px.pie(filtered_df, values = "Sales", names = "Category", template = "gridon")
+    fig.update_traces(text = filtered_df["Category"], textposition = "inside")
+    st.plotly_chart(fig, use_container_width = True)
+
+import plotly.figure_factory as ff
+
+st.subheader(":point_right: Month wise Sub-Category Sales Summary")
+with st.expander("Summary_Table"):
+    df_sample = df[0:5][["Region", "State", "City", "Category", "Sales", "Profit", "Quantity"]]
+    fig = ff.create_table(df_sample, colorscale = "Cividis")
+    st.plotly_chart(fig, use_container_width = True)
