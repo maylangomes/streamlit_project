@@ -20,9 +20,8 @@ else:
 
 col1, col2 = st.columns((2))
 df["Order Date"] = pd.to_datetime(df["Order Date"])
-print(df["Order Date"].head())
+
 startDate = pd.to_datetime(df["Order Date"]).min()
-# print(startDate)
 endDate = pd.to_datetime(df["Order Date"]).max()
 
 with col1:
