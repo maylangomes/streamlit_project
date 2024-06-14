@@ -20,8 +20,9 @@ else:
 
 col1, col2 = st.columns((2))
 df["Order Date"] = pd.to_datetime(df["Order Date"])
-
+print(df["Order Date"].head())
 startDate = pd.to_datetime(df["Order Date"]).min()
+# print(startDate)
 endDate = pd.to_datetime(df["Order Date"]).max()
 
 with col1:
@@ -134,3 +135,8 @@ with st.expander("Summary_Table"):
     df_sample = df[0:5][["Region", "State", "City", "Category", "Sales", "Profit", "Quantity"]]
     fig = ff.create_table(df_sample, colorscale = "Cividis")
     st.plotly_chart(fig, use_container_width = True)
+
+    st.markdown("Month wise sub-Category Table")
+    filtered_df["month"] = filtered_df["Order Date"].dt.month_name()
+    sub_category_Year = pd.pivot_table(data = filtered_df, values = "Sales", index = ["Sub-Category"], columns = "month")
+    st.write(sub_category_Year.style.background_gradient(cmap = "Blues"))
