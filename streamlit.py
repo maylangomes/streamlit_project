@@ -82,13 +82,13 @@ with chart1:
 st.subheader(":point_right: Tableau récapitulatif des décès")
 with st.expander("Tableau récapitulatif"):
     # Ajouter de nouveau la colonne '% de décès' si elle n'est pas dans df
-    if "% de décès" not in df.columns:
-        df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
+    # if "% de décès" not in df.columns:
+    #     df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
         
-    df_sample = df[["Département", "Total décès 2022", "0-24 ans", "25-49 ans",
-                    "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"]]
-    fig = ff.create_table(df_sample, colorscale="Cividis")
-    st.plotly_chart(fig, use_container_width=True)
+    # df_sample = df[["Département", "Total décès 2022", "0-24 ans", "25-49 ans",
+    #                 "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"]]
+    # fig = ff.create_table(df_sample, colorscale="Cividis")
+    # st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("Détails des décès par zone")
     details_deces_zone = pd.pivot_table(data=filtered_df, values=["Total décès 2022", "0-24 ans", "25-49 ans",
