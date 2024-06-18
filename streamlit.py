@@ -27,69 +27,63 @@ df = df[["Zone", "Département", "Total décès 2022", "0-24 ans", "25-49 ans",
 df.fillna('Unknown', inplace=True)
 
 st.sidebar.header("Filtre :")
-regions = st.sidebar.multiselect("Choisissez votre département", df["Département"].unique())
+regions = st.sidebar.multiselect("Choisissez les départements", df["Département"].unique())
+
+df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
 
 if not regions:
-    filtered_df = df
+    filtered_df = df.nlargest(10, "% de décès")
+    title_suffix = " (Top 10 des % de décès les plus élevés)"
 else:
     filtered_df = df[df["Département"].isin(regions)]
-
-filtered_df["% de décès"] = (filtered_df["Total décès 2022"] / filtered_df["Population"]) * 100
+    selected_departments = ", ".join(regions)
+    title_suffix = f" ({selected_departments})"
 
 deces_par_zone = filtered_df.groupby(by=["Département"], as_index=False).agg(
     {"Total décès 2022": "sum", "Population": "first", "% de décès": "mean"})
 
 col1, col2 = st.columns((2))
 with col1:
-    st.subheader("Pourcentage des décès par zone")
+    st.subheader(f"Pourcentage des décès par zone{title_suffix}")
     fig = px.bar(deces_par_zone, x="Département", y="% de décès", text="% de décès", template="seaborn")
     st.plotly_chart(fig, use_container_width=True, height=400)
 
 with col2:
-    st.subheader("Répartition des décès par zone")
-    fig = px.pie(filtered_df, values="% de décès", names="Département", hole=0.5)
+    st.subheader(f"Total des décès par zone{title_suffix}")
+    fig = px.pie(filtered_df, values="Total décès 2022", names="Département", hole=0.5)
     fig.update_traces(text=filtered_df["Département"], textposition="outside")
     st.plotly_chart(fig, use_container_width=True)
 
 cl1, cl2 = st.columns(2)
 with cl1:
-    with st.expander("Données par zone"):
+    with st.expander(f"Données par zone{title_suffix}"):
         st.write(deces_par_zone.style.background_gradient(cmap="Blues"))
         csv = deces_par_zone.to_csv(index=False).encode('utf-8')
         st.download_button("Télécharger les données", data=csv, file_name="Total_Deces_par_Zone.csv", mime="text/csv",
                           help="Cliquez ici pour télécharger les données au format CSV")
 
 with cl2:
-    with st.expander("Données détaillées"):
+    with st.expander(f"Données détaillées{title_suffix}"):
         st.write(filtered_df.style.background_gradient(cmap="Oranges"))
         csv = filtered_df.to_csv(index=False).encode('utf-8')
         st.download_button("Télécharger les données", data=csv, file_name="Donnees_detaillees.csv", mime="text/csv",
                           help="Cliquez ici pour télécharger les données au format CSV")
 
-st.subheader("Vue hiérarchique des décès par zone")
+st.subheader(f"Vue hiérarchique des décès par zone{title_suffix}")
 fig3 = px.treemap(filtered_df, path=["Département"], values="% de décès", hover_data=["Total décès 2022", "% de décès"], color="% de décès")
 fig3.update_layout(width=800, height=650)
 st.plotly_chart(fig3, use_container_width=True)
 
 chart1, chart2 = st.columns((2))
 with chart1:
-    st.subheader("Total des décès par groupe d'âge")
+    st.subheader(f"Total des décès par groupe d'âge{title_suffix}")
     fig = px.bar(filtered_df, x="Département", y=["0-24 ans", "25-49 ans", "50-64 ans",
                                                  "65-74 ans", "75-84 ans", "85 ans et plus"],
                  barmode="stack", template="gridon")
     st.plotly_chart(fig, use_container_width=True)
 
-st.subheader(":point_right: Tableau récapitulatif des décès")
-with st.expander("Récapitulatif avec pourcentage et total par âge et par département"):
-    # Ajouter de nouveau la colonne '% de décès' si elle n'est pas dans df
-    # if "% de décès" not in df.columns:
-    #     df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
-        
-    # df_sample = df[["Département", "Total décès 2022", "0-24 ans", "25-49 ans",
-    #                 "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"]]
-    # fig = ff.create_table(df_sample, colorscale="Cividis")
-    # st.plotly_chart(fig, use_container_width=True)
-
+st.subheader(f":point_right: Tableau récapitulatif des décès{title_suffix}")
+with st.expander(f"Récapitulatif avec pourcentage et total par âge et par département{title_suffix}"):
     st.markdown("Détails des décès par zone")
     details_deces_zone = pd.pivot_table(data=filtered_df, values=["Total décès 2022", "0-24 ans", "25-49 ans",
                                                                   "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"],
