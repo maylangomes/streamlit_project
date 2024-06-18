@@ -26,8 +26,8 @@ df = df[["Zone", "Département", "Total décès 2022", "0-24 ans", "25-49 ans",
 
 df.fillna('Unknown', inplace=True)
 
-st.sidebar.header("Choisissez vos filtres : ")
-regions = st.sidebar.multiselect("Choisissez votre région", df["Département"].unique())
+st.sidebar.header("Filtre :")
+regions = st.sidebar.multiselect("Choisissez votre département", df["Département"].unique())
 
 if not regions:
     filtered_df = df
@@ -80,7 +80,7 @@ with chart1:
     st.plotly_chart(fig, use_container_width=True)
 
 st.subheader(":point_right: Tableau récapitulatif des décès")
-with st.expander("Tableau récapitulatif"):
+with st.expander("Récapitulatif avec pourcentage et total par âge et par département"):
     # Ajouter de nouveau la colonne '% de décès' si elle n'est pas dans df
     # if "% de décès" not in df.columns:
     #     df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
