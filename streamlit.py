@@ -8,18 +8,11 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Décès par département", page_icon=":chart_with_upwards_trend:", layout="wide")
 
-st.title(":bar_chart: Total des décès par département en France")
+st.title(":bar_chart: Total et pourcentage des décès par département en France (population légale déclarée par l'INSEE)")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
-fl = st.file_uploader(":file_folder: Upload a file", type=(["csv"]))
-if fl is not None:
-    filename = fl.name
-    st.write(filename)
-    df = pd.read_csv(fl, delimiter=';', encoding='ISO-8859-1')
-else:
-    df = pd.read_csv("deces.csv", delimiter=';', encoding='utf-8')
+df = pd.read_csv("deces.csv", delimiter=';', encoding='utf-8')
 
-# Renommer les colonnes pour une manipulation plus facile
 df.columns = ["Zone", "Département", "Total_Deces2023", "Total_0_24ans_Deces2023", "Total_25_49ans_Deces2023",
        "Total_50_64ans_Deces2023", "Total_65_74ans_Deces2023", "Total_75_84ans_Deces2023", "Total_85ans_plus_Deces2023",
        "Total décès 2022", "0-24 ans", "25-49 ans", "50-64 ans",
@@ -27,12 +20,10 @@ df.columns = ["Zone", "Département", "Total_Deces2023", "Total_0_24ans_Deces202
        "Total_0_24ans_Deces2019", "Total_25_49ans_Deces2019", "Total_50_64ans_Deces2019", "Total_65_74ans_Deces2019",
        "Total_75_84ans_Deces2019", "Total_85ans_plus_Deces2019", "Date_evenement", "Population"]
 
-# Garder uniquement les colonnes nécessaires pour 2022
 df = df[["Zone", "Département", "Total décès 2022", "0-24 ans", "25-49 ans",
          "50-64 ans", "65-74 ans", "75-84 ans",
          "85 ans et plus", "Population"]]
 
-# Remplir les valeurs manquantes avec 'Unknown'
 df.fillna('Unknown', inplace=True)
 
 st.sidebar.header("Choisissez vos filtres : ")
@@ -43,22 +34,20 @@ if not regions:
 else:
     filtered_df = df[df["Département"].isin(regions)]
 
-# Ajouter une colonne pour le pourcentage de décès par rapport à la population
 filtered_df["% de décès"] = (filtered_df["Total décès 2022"] / filtered_df["Population"]) * 100
 
-# Analyse des décès par zone
 deces_par_zone = filtered_df.groupby(by=["Département"], as_index=False).agg(
     {"Total décès 2022": "sum", "Population": "first", "% de décès": "mean"})
 
 col1, col2 = st.columns((2))
 with col1:
-    st.subheader("Total des décès par zone")
-    fig = px.bar(deces_par_zone, x="Département", y="Total décès 2022", text="Total décès 2022", template="seaborn")
+    st.subheader("Pourcentage des décès par zone")
+    fig = px.bar(deces_par_zone, x="Département", y="% de décès", text="% de décès", template="seaborn")
     st.plotly_chart(fig, use_container_width=True, height=400)
 
 with col2:
     st.subheader("Répartition des décès par zone")
-    fig = px.pie(filtered_df, values="Total décès 2022", names="Département", hole=0.5)
+    fig = px.pie(filtered_df, values="% de décès", names="Département", hole=0.5)
     fig.update_traces(text=filtered_df["Département"], textposition="outside")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -84,7 +73,7 @@ st.plotly_chart(fig3, use_container_width=True)
 
 chart1, chart2 = st.columns((2))
 with chart1:
-    st.subheader("Répartition des décès par groupe d'âge")
+    st.subheader("Total des décès par groupe d'âge")
     fig = px.bar(filtered_df, x="Département", y=["0-24 ans", "25-49 ans", "50-64 ans",
                                                  "65-74 ans", "75-84 ans", "85 ans et plus"],
                  barmode="stack", template="gridon")
