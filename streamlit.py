@@ -49,7 +49,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True, height=400)
 
 with col2:
-    st.subheader(f"Total des décès par zone{title_suffix}")
+    st.subheader(f"Répartition des décès par zone{title_suffix}")
     fig = px.pie(filtered_df, values="Total décès 2022", names="Département", hole=0.5)
     fig.update_traces(text=filtered_df["Département"], textposition="outside")
     st.plotly_chart(fig, use_container_width=True)
@@ -69,8 +69,14 @@ with cl2:
         st.download_button("Télécharger les données", data=csv, file_name="Donnees_detaillees.csv", mime="text/csv",
                           help="Cliquez ici pour télécharger les données au format CSV")
 
-st.subheader(f"Vue hiérarchique des décès par zone{title_suffix}")
-fig3 = px.treemap(filtered_df, path=["Département"], values="% de décès", hover_data=["Total décès 2022", "% de décès"], color="% de décès")
+st.subheader(f"Vue hiérarchique des décès par zone et tranche d'âge{title_suffix}")
+# Préparer les données pour le treemap
+df_melted = filtered_df.melt(id_vars=["Zone", "Département", "Population", "% de décès", "Total décès 2022"],
+                             value_vars=["0-24 ans", "25-49 ans", "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus"],
+                             var_name="Tranche d'âge", value_name="Décès par tranche d'âge")
+
+fig3 = px.treemap(df_melted, path=["Département", "Tranche d'âge"], values="Décès par tranche d'âge",
+                  hover_data=["Total décès 2022", "% de décès"], color="Décès par tranche d'âge")
 fig3.update_layout(width=800, height=650)
 st.plotly_chart(fig3, use_container_width=True)
 
