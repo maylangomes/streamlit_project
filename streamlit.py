@@ -40,7 +40,7 @@ else:
     title_suffix = f" ({selected_departments})"
 
 deces_par_zone = filtered_df.groupby(by=["Département"], as_index=False).agg(
-    {"Total décès 2022": "sum", "Population": "first", "% de décès": "mean"})
+    {"Total décès 2022": "first", "Population": "first", "% de décès": "mean"})
 
 col1, col2 = st.columns((2))
 with col1:
@@ -63,7 +63,7 @@ with cl1:
                           help="Cliquez ici pour télécharger les données au format CSV")
 
 with cl2:
-    with st.expander(f"Données détaillées{title_suffix}"):
+    with st.expander(f"Données détaillées par tranche d'âge{title_suffix}"):
         st.write(filtered_df.style.background_gradient(cmap="Oranges"))
         csv = filtered_df.to_csv(index=False).encode('utf-8')
         st.download_button("Télécharger les données", data=csv, file_name="Donnees_detaillees.csv", mime="text/csv",
