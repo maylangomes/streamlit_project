@@ -27,12 +27,12 @@ df = df[["Zone", "Département", "Total décès 2022", "0-24 ans", "25-49 ans",
 df.fillna('Unknown', inplace=True)
 
 st.sidebar.header("Filtre :")
-regions = st.sidebar.multiselect("Choisissez les départements", df["Département"].unique())
+regions = st.sidebar.multiselect("Choisissez un ou plusieurs départements", df["Département"].unique())
 
 df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
 
 if not regions:
-    filtered_df = df.nlargest(10, "% de décès")
+    filtered_df = df.nlargest(5, "% de décès")
     title_suffix = " (Top 10 des % de décès les plus élevés)"
 else:
     filtered_df = df[df["Département"].isin(regions)]
