@@ -87,10 +87,11 @@ fig = px.bar(filtered_df, x="Département", y=["0-24 ans", "25-49 ans", "50-64 a
                 barmode="stack", template="gridon")
 st.plotly_chart(fig, use_container_width=True)
 
+# with chart2:
 st.subheader(f":point_right: Tableau récapitulatif des décès{title_suffix}")
 with st.expander(f"Récapitulatif avec pourcentage et total par âge et par département{title_suffix}"):
     st.markdown("Détails des décès par zone")
     details_deces_zone = pd.pivot_table(data=filtered_df, values=["Total décès 2022", "0-24 ans", "25-49 ans",
-                                                                  "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"],
+                                                                "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus", "Population", "% de décès"],
                                         index=["Département"], aggfunc="sum")
     st.write(details_deces_zone.style.background_gradient(cmap="Blues"))
