@@ -34,7 +34,7 @@ df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
 
 if not regions:
     filtered_df = df.nlargest(5, "% de décès")
-    title_suffix = " (Top 5 des % de décès les plus élevés)"
+    title_suffix = " (Top 5)"
 else:
     filtered_df = df[df["Département"].isin(regions)]
     selected_departments = ", ".join(regions)
@@ -48,8 +48,8 @@ deces_par_zone = filtered_df.groupby(by=["Département"], as_index=False).agg(
 
 col1, col2 = st.columns((2))
 with col1:
-    st.subheader(f"Pourcentage des décès par zone{title_suffix}")
-    fig = px.bar(deces_par_zone, x="Département", y="% de décès", text="% de décès", template="seaborn")
+    st.subheader(f"Total des décès par zone{title_suffix}")
+    fig = px.bar(deces_par_zone, x="Département", y="Total décès 2022", text="Total décès 2022", template="seaborn")
     st.plotly_chart(fig, use_container_width=True, height=400)
 
 with col2:
