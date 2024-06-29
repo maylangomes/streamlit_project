@@ -15,12 +15,12 @@ df = pd.read_csv("deces.csv", delimiter=';', encoding='utf-8')
 
 df.columns = ["Zone", "Département", "Total_Deces2023", "Total_0_24ans_Deces2023", "Total_25_49ans_Deces2023",
        "Total_50_64ans_Deces2023", "Total_65_74ans_Deces2023", "Total_75_84ans_Deces2023", "Total_85ans_plus_Deces2023",
-       "Total décès 2022", "0-24 ans", "25-49 ans", "50-64 ans",
+       "Décès", "0-24 ans", "25-49 ans", "50-64 ans",
        "65-74 ans", "75-84 ans", "85 ans et plus", "Total_Deces2019",
        "Total_0_24ans_Deces2019", "Total_25_49ans_Deces2019", "Total_50_64ans_Deces2019", "Total_65_74ans_Deces2019",
        "Total_75_84ans_Deces2019", "Total_85ans_plus_Deces2019", "Date_evenement", "Population"]
 
-df = df[["Zone", "Département", "Total décès 2022", "0-24 ans", "25-49 ans",
+df = df[["Zone", "Département", "Décès", "0-24 ans", "25-49 ans",
          "50-64 ans", "65-74 ans", "75-84 ans",
          "85 ans et plus", "Population"]]
 
@@ -30,10 +30,10 @@ st.sidebar.header("Filtres :")
 regions = st.sidebar.multiselect("Choisissez un ou plusieurs départements", df["Département"].unique())
 ages = st.sidebar.multiselect("Choisissez une ou plusieurs tranches d'âge", ["0-24 ans", "25-49 ans", "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus"])
 
-df["% de décès"] = (df["Total décès 2022"] / df["Population"]) * 100
+df["% de décès"] = (df["Décès"] / df["Population"]) * 100
 
 if not regions:
-    filtered_df_total = df.nlargest(5, "Total décès 2022")
+    filtered_df_total = df.nlargest(5, "Décès")
     title_suffix_total = " (Les 5 départements avec le plus de décès)"
 else:
     filtered_df_total = df[df["Département"].isin(regions)]
@@ -49,56 +49,56 @@ else:
     title_suffix = f" ({selected_departments})"
 
 if ages:
-    filtered_df = filtered_df[["Zone", "Département", "Total décès 2022", "Population", "% de décès"] + ages]
+    filtered_df = filtered_df[["Zone", "Département", "Décès", "Population", "% de décès"] + ages]
 
 deces_par_zone = filtered_df_total.groupby(by=["Département"], as_index=False).agg(
-    {"Total décès 2022": "first", "Population": "first", "% de décès": "mean"})
+    {"Décès": "first", "Population": "first", "% de décès": "mean"})
 
 
 st.subheader(f"Total des décès par zone{title_suffix_total}")
-fig = px.bar(deces_par_zone, x="Département", y="Total décès 2022", text="Total décès 2022", template="seaborn")
+fig = px.bar(deces_par_zone, x="Département", y="Décès", text="Décès", template="seaborn")
 fig.update_layout(width=600, height=400) 
 st.plotly_chart(fig, use_container_width=True)
 
-with st.expander(f"Données par zone{title_suffix_total}"):
+with st.expander(f"Données détaillées du total des décès par zone {title_suffix_total}"):
 
     st.write(deces_par_zone.style.background_gradient(cmap="Blues"))
     csv = deces_par_zone.to_csv(index=False).encode('utf-8')
     st.download_button("Télécharger les données", data=csv, file_name="Total_Deces_par_Zone.csv", mime="text/csv",
                         help="Cliquez ici pour télécharger les données au format CSV")
 
-st.subheader(f"Répartition des décès par zone{title_suffix}")
+st.subheader(f"Décès par zone en pourcentage {title_suffix}")
 filtered_df["% de décès"] = df["% de décès"]
 fig = px.pie(filtered_df, values="% de décès", names="Département", hole=0.5)
 fig.update_layout(width=600, height=400)
 st.plotly_chart(fig, use_container_width=True)
 
-with st.expander(f"Données détaillées par tranche d'âge{title_suffix}"):
-    st.write(filtered_df.style.background_gradient(cmap="Oranges"))
+with st.expander(f"Données détaillées des décès par zone par tranche d'âge {title_suffix}"):
+    st.write(filtered_df.style.background_gradient(cmap="Blues"))
     csv = filtered_df.to_csv(index=False).encode('utf-8')
     st.download_button("Télécharger les données", data=csv, file_name="Donnees_detaillees.csv", mime="text/csv",
                         help="Cliquez ici pour télécharger les données au format CSV")
 
 st.subheader(f"Vue hiérarchique des décès par zone et tranche d'âge{title_suffix}")
-df_melted = filtered_df.melt(id_vars=["Zone", "Département", "Population", "% de décès", "Total décès 2022"],
+df_melted = filtered_df.melt(id_vars=["Zone", "Département", "Population", "% de décès", "Décès"],
                              value_vars=ages if ages else ["0-24 ans", "25-49 ans", "50-64 ans", "65-74 ans", "75-84 ans", "85 ans et plus"],
                              var_name="Tranche d'âge", value_name="Décès par tranche d'âge")
 
 fig3 = px.treemap(df_melted, path=["Département", "Tranche d'âge"], values="Décès par tranche d'âge",
-                  hover_data=["Total décès 2022", "% de décès"], color="Décès par tranche d'âge")
+                  hover_data=["Décès", "% de décès"], color="Décès par tranche d'âge")
 fig3.update_layout(width=800, height=650)
 st.plotly_chart(fig3, use_container_width=True)
 
-st.subheader(f"Total des décès par groupe d'âge{title_suffix}")
+st.subheader(f"Total des décès par tranche d'âge {title_suffix}")
 fig = px.bar(filtered_df, x="Département", y=ages if ages else ["0-24 ans", "25-49 ans", "50-64 ans",
                                                 "65-74 ans", "75-84 ans", "85 ans et plus"],
-                barmode="stack", template="gridon")
+                barmode="stack", template="gridon", labels={"value": "Décès"})
 st.plotly_chart(fig, use_container_width=True)
 
-st.subheader(f":point_right: Tableau récapitulatif des décès{title_suffix}")
-with st.expander(f"Récapitulatif pourcentage et total des décès par âge par département{title_suffix}"):
-    st.markdown("Détails des décès par zone")
-    details_deces_zone = pd.pivot_table(data=filtered_df, values=["Total décès 2022"] + (ages if ages else ["0-24 ans", "25-49 ans", "50-64 ans",
-                                                                "65-74 ans", "75-84 ans", "85 ans et plus"]) + ["Population", "% de décès"],
-                                        index=["Département"], aggfunc="sum")
-    st.write(details_deces_zone.style.background_gradient(cmap="Blues"))
+# st.subheader(f":point_right: Tableau récapitulatif des décès{title_suffix}")
+# with st.expander(f"Récapitulatif pourcentage et total des décès par âge par département{title_suffix}"):
+#     st.markdown("Détails des décès par zone")
+#     details_deces_zone = pd.pivot_table(data=filtered_df, values=["Décès"] + (ages if ages else ["0-24 ans", "25-49 ans", "50-64 ans",
+#                                                                 "65-74 ans", "75-84 ans", "85 ans et plus"]) + ["Population", "% de décès"],
+#                                         index=["Département"], aggfunc="sum")
+#     st.write(details_deces_zone.style.background_gradient(cmap="Blues"))
